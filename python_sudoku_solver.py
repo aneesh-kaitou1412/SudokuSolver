@@ -1,17 +1,19 @@
 import numpy as np
 from copy import deepcopy
+n = 3
+N = n * n
 # Grid variable saves the final grid
 Grid = []
-Allowed = [[[1 for i in range(0, 9)] for j in range(0, 9)] for k in range(0, 9)]
+Allowed = [[[1 for i in range(0, N)] for j in range(0, N)] for k in range(0, N)]
 
 # print(Grid)
 
-for i in range(0, 9):
+for i in range(0, N):
     s = input()
     s = s.split(sep=" ")
     row = []
-    for j in s[:]:
-        row.append(int(j))
+    for j in range(0, N):
+        row.append(int(s[j]))
     Grid.append(row)
 
 # print(Grid)
@@ -58,7 +60,7 @@ def insert_num(num, x, y):
     Allowed[num, x, :] = Allowed[num, x, :] & 0
     Allowed[num, :, y] = Allowed[num, :, y] & 0
     Allowed[:, x, y] = Allowed[:, x, y] & 0
-    Allowed[num, 3*int(x/3):3*int(x/3)+3, 3*int(y/3):3*int(y/3)+3] = Allowed[num, 3*int(x/3):3*int(x/3)+3, 3*int(y/3):3*int(y/3)+3] & 0
+    Allowed[num, n*int(x/n):n*int(x/n)+n, n*int(y/n):n*int(y/n)+n] = Allowed[num, n*int(x/n):n*int(x/n)+n, n*int(y/n):n*int(y/n)+n] & 0
     Allowed[num, x, y] = 1
 
 
@@ -70,9 +72,9 @@ def is_complete():
 
 
 def is_valid_state():
-    state = [[0 for i in range(0, 9)] for j in range(0, 9)]
+    state = [[0 for i in range(0, N)] for j in range(0, N)]
     state = np.asarray(state)
-    for i in range(0, 9):
+    for i in range(0, N):
         state = state | Allowed[i, :, :]
     if 0 in state:
         return False
@@ -82,19 +84,19 @@ def is_valid_state():
 
 # Find next solvable cell -
 def next_cell():
-    state = [[0 for i in range(0, 9)] for j in range(0, 9)]
+    state = [[0 for i in range(0, N)] for j in range(0, N)]
     state = np.asarray(state)
-    for i in range(0, 9):
+    for i in range(0, N):
         state = state + Allowed[i, :, :]
-    state = state + 10 - 10 * (Grid == -1)
+    state = state + (N+5) - (N+5) * (Grid == -1)
     index = np.unravel_index(np.argmin(state, axis=None), state.shape)
     return index
 
 
 # Initialize the board - ok
 def initialize_board():
-    for i in range(0, 9):
-        for j in range(0, 9):
+    for i in range(0, N):
+        for j in range(0, N):
             if not Grid[i, j] == -1:
                 insert_num(Grid[i, j], i, j)
 
@@ -110,7 +112,7 @@ def solve_board():
         PrevAllowed = deepcopy(Allowed)
         (x_coor, y_coor) = next_cell()
         # print(str(x_coor) + " " + str(y_coor))
-        for i in range(0, 9):
+        for i in range(0, N):
             if is_allowed(i, x_coor, y_coor):
                 insert_num(i, x_coor, y_coor)
                 # print(Grid)
@@ -126,18 +128,18 @@ def is_lonely(num, x, y):
     # print(Allowed[num, x, :])
     # print(Allowed[num, :, y])
     # print(Allowed[:, x, y])
-    # print(Allowed[num, 3*int(x/3):3*int(x/3)+3, 3*int(y/3):3*int(y/3)+3])
+    # print(Allowed[num, n*int(x/n):n*int(x/n)+n, n*int(y/n):n*int(y/n)+n])
     c1 = (Allowed[num, x, :] == 0).all()
     c2 = (Allowed[num, :, y] == 0).all()
     c3 = (Allowed[:, x, y] == 0).all()
-    c4 = (Allowed[num, 3*int(x/3):3*int(x/3)+3, 3*int(y/3):3*int(y/3)+3] == 0).all()
+    c4 = (Allowed[num, n*int(x/n):n*int(x/n)+n, n*int(y/n):n*int(y/n)+n] == 0).all()
     return c1 or c2 or c3 or c4
 
 
 def find_lonely_guys():
-    for i in range(0, 9):
-        for j in range(0, 9):
-            for k in range(0, 9):
+    for i in range(0, N):
+        for j in range(0, N):
+            for k in range(0, N):
                 if Grid[j, k] == -1 and Allowed[i, j, k] == 1:
                     Allowed[i, j, k] = 0
                     if is_lonely(i, j, k):

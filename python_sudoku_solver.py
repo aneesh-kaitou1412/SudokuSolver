@@ -106,6 +106,7 @@ def solve_board():
         global Allowed
         if not is_valid_state():
             return False
+        find_lonely_guys()
         PrevAllowed = deepcopy(Allowed)
         (x_coor, y_coor) = next_cell()
         # print(str(x_coor) + " " + str(y_coor))
@@ -125,7 +126,7 @@ def is_lonely(num, x, y):
     # print(Allowed[num, x, :])
     # print(Allowed[num, :, y])
     # print(Allowed[:, x, y])
-    # print(Allowed[num, (y % 3):(y % 3 + 3), (x % 3):(x % 3 + 3)])
+    # print(Allowed[num, 3*int(x/3):3*int(x/3)+3, 3*int(y/3):3*int(y/3)+3])
     c1 = (Allowed[num, x, :] == 0).all()
     c2 = (Allowed[num, :, y] == 0).all()
     c3 = (Allowed[:, x, y] == 0).all()
@@ -137,7 +138,7 @@ def find_lonely_guys():
     for i in range(0, 9):
         for j in range(0, 9):
             for k in range(0, 9):
-                if Grid[j, k] == -1:
+                if Grid[j, k] == -1 and Allowed[i, j, k] == 1:
                     Allowed[i, j, k] = 0
                     if is_lonely(i, j, k):
                         insert_num(i, j, k)
@@ -145,10 +146,20 @@ def find_lonely_guys():
 
 
 initialize_board()
-find_lonely_guys()
-print(Grid+1)
 
-# if solve_board():
-#     print(Grid+1)
-# else:
-#     print("Unsolved")
+if solve_board():
+    print(Grid+1)
+else:
+    print("Unsolved")
+
+
+# Difficult sudoku
+# 0 0 0 0 0 0 0 0 0
+# 0 0 0 0 0 3 0 8 5
+# 0 0 1 0 2 0 0 0 0
+# 0 0 0 5 0 7 0 0 0
+# 0 0 4 0 0 0 1 0 0
+# 0 9 0 0 0 0 0 0 0
+# 5 0 0 0 0 0 0 7 3
+# 0 0 2 0 1 0 0 0 0
+# 0 0 0 0 4 0 0 0 9

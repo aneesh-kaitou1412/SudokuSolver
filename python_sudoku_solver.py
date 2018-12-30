@@ -27,21 +27,22 @@ for i in range(0, N):
 # 3 0 0 0 0 0 2 0 8
 # 0 0 2 3 0 1 0 0 0
 
-# Functions needed:
-#   check allowed- number , coordinate
-#   insert number- number , coordinate
-#   remove Allowed- number , coordinate
-#   add Allowed- number , coordinate
-#   solve board recursive fn- Grid
-#   sort cell coordinates acc to ease of solving-
-#   remove number- coordinate
-#   find box- coordinate
-#   find possibilities- to initially calculate possibilities for the whole grid and sort the coordinate list
+# CSP Type Solution
+#   Structure:
+#       Grid to store solution
+#       Allowed to store if allowed yet or not
+#       
+#   Functions:
+#       is_allowed - simple check Allowed value
+#       insert_num - inserts into pos and makes changes to Allowed
+#       is_complete - simple check empty space in grid
+#       is_valid_state - should have atleast one option available in each cell
+#       next_cell - finds nect cell with minimum possible options to choose from
+#       initialize_board - sets all given values
+#       is_lonely - checks if it is the only possible value in a row column box
+#       find_lonely_guys - fills up all the lonely places
+#       solve_board - recursive function to solve the board
 
-# Structure needed
-#   Dict key:coordinate value:List having allowed values
-#   Grid: 9*9 stores result and used for checking allowed
-#   List of coordinates - arranged in increasing order of number of possibilities
 
 Grid = np.asarray(Grid, dtype=int)
 Grid = Grid - 1
@@ -82,7 +83,6 @@ def is_valid_state():
         return True
 
 
-# Find next solvable cell -
 def next_cell():
     state = [[0 for i in range(0, N)] for j in range(0, N)]
     state = np.asarray(state)
@@ -93,35 +93,11 @@ def next_cell():
     return index
 
 
-# Initialize the board - ok
 def initialize_board():
     for i in range(0, N):
         for j in range(0, N):
             if not Grid[i, j] == -1:
                 insert_num(Grid[i, j], i, j)
-
-
-def solve_board():
-    if is_complete():
-        return True
-    else:
-        global Allowed
-        if not is_valid_state():
-            return False
-        find_lonely_guys()
-        PrevAllowed = deepcopy(Allowed)
-        (x_coor, y_coor) = next_cell()
-        # print(str(x_coor) + " " + str(y_coor))
-        for i in range(0, N):
-            if is_allowed(i, x_coor, y_coor):
-                insert_num(i, x_coor, y_coor)
-                # print(Grid)
-                # print("\n")
-                if solve_board():
-                    return True
-                Grid[x_coor, y_coor] = -1
-                Allowed = deepcopy(PrevAllowed)
-        return False
 
 
 def is_lonely(num, x, y):
@@ -145,6 +121,29 @@ def find_lonely_guys():
                     if is_lonely(i, j, k):
                         insert_num(i, j, k)
                     Allowed[i, j, k] = 1
+
+
+def solve_board():
+    if is_complete():
+        return True
+    else:
+        global Allowed
+        if not is_valid_state():
+            return False
+        find_lonely_guys()
+        PrevAllowed = deepcopy(Allowed)
+        (x_coor, y_coor) = next_cell()
+        # print(str(x_coor) + " " + str(y_coor))
+        for i in range(0, N):
+            if is_allowed(i, x_coor, y_coor):
+                insert_num(i, x_coor, y_coor)
+                # print(Grid)
+                # print("\n")
+                if solve_board():
+                    return True
+                Grid[x_coor, y_coor] = -1
+                Allowed = deepcopy(PrevAllowed)
+        return False
 
 
 initialize_board()

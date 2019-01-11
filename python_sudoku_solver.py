@@ -72,15 +72,59 @@ def is_complete():
         return True
 
 
-def is_valid_state():
+def is_final_valid_state():
+    c1 = True
     state = [[0 for i in range(0, N)] for j in range(0, N)]
     state = np.asarray(state)
     for i in range(0, N):
         state = state | Allowed[i, :, :]
     if 0 in state:
         return False
-    else:
-        return True
+
+    
+    for j in range(0,n):
+        for k in range(0,n):
+            if not np.size(Grid[n*j:n*j+n, n*k:n*k+n]) == np.size(np.unique(Grid[n*j:n*j+n, n*k:n*k+n])):
+                return False
+
+    for j in range(0,N):
+        if not np.size(Grid[j, :]) == np.size(np.unique(Grid[j, :])):
+            return False 
+        if not np.size(Grid[:, j]) == np.size(np.unique(Grid[:, j])):
+            return False 
+    
+    return True
+
+def is_valid_state():
+    c1 = True
+    state = [[0 for i in range(0, N)] for j in range(0, N)]
+    state = np.asarray(state)
+    for i in range(0, N):
+        state = state | Allowed[i, :, :]
+    if 0 in state:
+        return False
+
+    for j in range(0,n):
+        for k in range(0,n):
+            part = Grid[n*j:n*j+n, n*k:n*k+n]
+            part = np.ndarray.flatten(part)
+            part = part[part!=-1]
+            if not np.size(part) == np.size(np.unique(part)):
+                return False
+
+    for j in range(0,N):
+        part1 = Grid[j, :]
+        part1 = np.ndarray.flatten(part1)
+        part1 = part1[part1!=-1]
+        part2 = Grid[:, j]
+        part2 = np.ndarray.flatten(part2)
+        part2 = part2[part2!=-1]
+        if not np.size(part1) == np.size(np.unique(part1)):
+            return False 
+        if not np.size(part1) == np.size(np.unique(part1)):
+            return False
+
+    return True
 
 
 def next_cell():
@@ -113,25 +157,30 @@ def is_lonely(num, x, y):
 
 
 def find_lonely_guys():
+    global Allowed
     for i in range(0, N):
         for j in range(0, N):
             for k in range(0, N):
                 if Grid[j, k] == -1 and Allowed[i, j, k] == 1:
                     Allowed[i, j, k] = 0
                     if is_lonely(i, j, k):
+                        # tempAllowed = deepcopy(Allowed)
                         insert_num(i, j, k)
+                        # if not is_valid_state():
+                        #     Allowed = deepcopy(tempAllowed)                            
                     Allowed[i, j, k] = 1
 
 
 def solve_board():
-    if is_complete():
+    if is_complete() and is_final_valid_state():
         return True
     else:
         global Allowed
         if not is_valid_state():
             return False
-        find_lonely_guys()
         PrevAllowed = deepcopy(Allowed)
+        # find_lonely_guys()
+        PrevLonely = deepcopy(Allowed)
         (x_coor, y_coor) = next_cell()
         # print(str(x_coor) + " " + str(y_coor))
         for i in range(0, N):
@@ -142,7 +191,8 @@ def solve_board():
                 if solve_board():
                     return True
                 Grid[x_coor, y_coor] = -1
-                Allowed = deepcopy(PrevAllowed)
+                Allowed = deepcopy(PrevLonely)
+        Allowed = deepcopy(PrevAllowed)
         return False
 
 
@@ -164,3 +214,16 @@ else:
 # 5 0 0 0 0 0 0 7 3
 # 0 0 2 0 1 0 0 0 0
 # 0 0 0 0 4 0 0 0 9
+
+
+# Most Difficult Proclaimed
+# 8 0 0 0 0 0 0 0 0
+# 0 0 3 6 0 0 0 0 0
+# 0 7 0 0 9 0 2 0 0
+# 0 5 0 0 0 7 0 0 0
+# 0 0 0 0 4 5 7 0 0
+# 0 0 0 1 0 0 0 3 0
+# 0 0 1 0 0 0 0 6 8
+# 0 0 8 5 0 0 0 1 0
+# 0 9 0 0 0 0 4 0 0
+

@@ -1,4 +1,5 @@
 import argparse
+import random
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--infile", type=str)
@@ -92,7 +93,7 @@ def search(values):
 		return values
 	## Choose square with minimum possibilities
 	_, s = min((values[s].count('1'), s) for s in squares if values[s].count('1') > 1)
-	return some(search(assign(values.copy(), s, d)) for d in decode(values[s], typename=int))
+	return some(search(assign(values.copy(), s, d)) for d in random.shuffle(decode(values[s], typename=int)))
 
 def solve(grid_input):
 	" Solve the grid input puzzle "
